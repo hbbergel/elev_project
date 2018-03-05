@@ -1,4 +1,5 @@
 #include "elev.h"
+#include "io.h"
 #include "fsm.h"
 #include "timer.h"
 #include "queue.h"
@@ -24,8 +25,7 @@ int main() {
     printf("Press STOP button to stop elevator and exit program.\n");
 
     int floor = elev_get_floor_sensor_signal(); 
-    int previous_floor = -1;
-
+    //int previous_floor = -1;
 
 
     while (1) {
@@ -34,13 +34,53 @@ int main() {
 
             fsm_floor_reached(floor);
         }
-        else if(1) { /*overvåke om en knapp blir trykket*/
-            /*fsm_buttons_pressed()*/
+
+        if(elev_get_button_signal(BUTTON_CALL_UP, 0) == 1) {
+        	fsm_buttons_pressed(BUTTON_CALL_UP, 0);
+        }
+        else if(elev_get_button_signal(BUTTON_COMMAND, 0) == 1) {
+        	fsm_buttons_pressed(BUTTON_COMMAND, 0);
+        }
+        else if(elev_get_button_signal(BUTTON_CALL_UP, 1) == 1) {
+        	fsm_buttons_pressed(BUTTON_CALL_UP, 1);
+        }
+        else if(elev_get_button_signal(BUTTON_CALL_DOWN, 1) == 1) {
+        	fsm_buttons_pressed(BUTTON_CALL_DOWN, 1);
+        }
+        else if(elev_get_button_signal(BUTTON_COMMAND, 1) == 1) {
+        	fsm_buttons_pressed(BUTTON_COMMAND, 1);
+        }
+        else if(elev_get_button_signal(BUTTON_CALL_UP, 2) == 1){
+        	fsm_buttons_pressed(BUTTON_CALL_UP, 2);
+        }
+        else if(elev_get_button_signal(BUTTON_CALL_DOWN, 2) == 1) {
+        	fsm_buttons_pressed(BUTTON_CALL_DOWN, 2);
+        }
+        else if(elev_get_button_signal(BUTTON_COMMAND, 2) == 1) {
+        	fsm_buttons_pressed(BUTTON_COMMAND, 2);
+        }
+        else if(elev_get_button_signal(BUTTON_CALL_DOWN, 3) == 1) {
+        	fsm_buttons_pressed(BUTTON_CALL_DOWN, 3);
+        }
+        else if(elev_get_button_signal(BUTTON_COMMAND, 3) == 1) {
+        	fsm_buttons_pressed(BUTTON_COMMAND, 3);
         }
 
+        if (timer_check_time() == 1){
+        	fsm_timeout();
+        }
 
+        if (elev_get_stop_signal() == 1){
+        	fsm_stop_pressed();
+        }
+
+        if (timer_check_time() == 1) {
+        	fsm_timeout();
+        }
         
-
+        if ((elev_get_stop_signal() != 1) && fsm_get_state() == STOP){
+        	fsm_timeout();
+        }
 
         
 

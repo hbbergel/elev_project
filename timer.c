@@ -13,9 +13,6 @@ int timer_check_time() {
 
 	int current_time = time(NULL);
 
-
-
-
 	if((current_time - start_time) == 3) {
 
 		start_time = 0;
