@@ -5,8 +5,6 @@
 #include <stdio.h>
 
 
-
-
 static elev_state state = NONE;
 
 static int dir;
@@ -21,7 +19,6 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor) {
 
 		case IDLE:
 			queue_add_to_queue(button, floor);
-			elev_set_button_lamp(button, floor, 1);
 			if(current_floor < floor) {
 				elev_set_motor_direction(DIRN_UP);
 				dir = 1;
@@ -35,7 +32,6 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor) {
 			break;
 
 		case RUNNING:
-			elev_set_button_lamp(button, floor, 1);
 			queue_add_to_queue(button, floor);
 			break;
 
@@ -44,7 +40,6 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor) {
 			break;
 
 		case DOOR_OPEN:
-			elev_set_button_lamp(button, floor, 1);
 			queue_add_to_queue(button, floor);
 			break;
 	}
@@ -64,11 +59,16 @@ void fsm_floor_reached(int floor) {
 
 //skal jeg stoppe, slette fra kø her, fjerne lys?
 		case RUNNING:
+			printf("1");
 			elev_set_floor_indicator(floor);
 			if (queue_elev_stop(floor, dir) == 1){
+				printf("her\n");
 				elev_set_motor_direction(DIRN_STOP);
 				timer_start_timer();
 				elev_set_door_open_lamp(1);
+				queue_remove_from_queue(floor,dir);
+				printf("feil her\n");
+				queue_print();
 				state = DOOR_OPEN;
 			}
 			break;
@@ -80,7 +80,7 @@ void fsm_floor_reached(int floor) {
 			break;
 		
 		case DOOR_OPEN:
-			printf("Something wrong fsm_floor_reached case door_open\n");
+			
 			break;
 	}
 
@@ -130,7 +130,9 @@ void fsm_timeout() {
 			break;
 
 		case STOP:
-			printf("Stop state.\n");
+			elev_set_stop_lamp(0);
+			elev_set_door_open_lamp(0);
+			state = IDLE;
 			break;
 
 		case DOOR_OPEN:
@@ -138,12 +140,12 @@ void fsm_timeout() {
 			if (queue_is_empty() == 1){
 				state = IDLE;
 			}
-			else if((queue_is_empty() == 0) && (dir == 1) && current_floor != 3){
+			else if((queue_is_empty() == 0) && queue_which_direction(dir, current_floor) == 1){
 				elev_set_motor_direction(DIRN_UP);
 				state = RUNNING;
 				dir = 1;
 			}
-			else if((queue_is_empty() == 0) && (dir == -1) && current_floor != 0){
+			else if((queue_is_empty() == 0) && queue_which_direction(dir, current_floor) == -1){
 				elev_set_motor_direction(DIRN_DOWN);
 				state = RUNNING;
 				dir = -1;
@@ -165,6 +167,7 @@ int fsm_elev_init() {
 	}
 
 	elev_set_motor_direction(DIRN_STOP);
+	elev_set_floor_indicator(elev_get_floor_sensor_signal());
 
 	state = IDLE;
 

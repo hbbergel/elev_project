@@ -24,13 +24,15 @@ int main() {
 
     printf("Press STOP button to stop elevator and exit program.\n");
 
-    int floor = elev_get_floor_sensor_signal(); 
+    
     //int previous_floor = -1;
 
 
     while (1) {
 
-       if(floor != -1) {
+    	int floor = elev_get_floor_sensor_signal(); 
+
+      	if(floor != -1) {
 
             fsm_floor_reached(floor);
         }
@@ -74,10 +76,7 @@ int main() {
         	fsm_stop_pressed();
         }
 
-        if (timer_check_time() == 1) {
-        	fsm_timeout();
-        }
-        
+                
         if ((elev_get_stop_signal() != 1) && fsm_get_state() == STOP){
         	fsm_timeout();
         }
