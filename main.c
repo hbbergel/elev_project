@@ -24,8 +24,7 @@ int main() {
 
     printf("Press STOP button to stop elevator and exit program.\n");
 
-    
-    //int previous_floor = -1;
+
 
 
     while (1) {
@@ -39,7 +38,7 @@ int main() {
             prev_floor = floor;
         }
 
-
+        		/// KUN EM. STOP MELLOM ETG
         if(floor == -1 && fsm_get_state() == IDLE) {
         	printf("her er det feil\n");
         	if(elev_get_button_signal(BUTTON_CALL_UP, 0) == 1) {
@@ -72,9 +71,12 @@ int main() {
 	        else if(elev_get_button_signal(BUTTON_COMMAND, 3) == 1) {
 	        	fsm_buttons_pressed(BUTTON_COMMAND, 3, prev_floor);
 	        }
-
         }
 
+
+
+
+        	// alle andre cases
         if(elev_get_button_signal(BUTTON_CALL_UP, 0) == 1) {
         	fsm_buttons_pressed(BUTTON_CALL_UP, 0, prev_floor);
         }
@@ -106,6 +108,7 @@ int main() {
         	fsm_buttons_pressed(BUTTON_COMMAND, 3, prev_floor);
         }
 
+
         if (timer_check_time() == 1) {
         	fsm_timeout();
         }
@@ -119,17 +122,7 @@ int main() {
         	fsm_stop_pressed();
         }
 
-        /*if(elev_get_stop_signal() != 1 && fsm_get_state() == STOP) {
-        	timer_start_timer();
-        	elev_set_stop_lamp(0);
-        }*/
-                
-        /*if ((elev_get_stop_signal() != 1) && fsm_get_state() == STOP && timer_check_time() == 1){
-        	fsm_timeout();
-        }*/
-
-
-        
+               
 
 
     }

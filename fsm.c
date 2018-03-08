@@ -19,7 +19,11 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor, int prev_floor) {
 
 		case IDLE:
 			queue_add_to_queue(button, floor);
-			if(current_floor < floor && current_floor != -1) {
+			if(current_floor == floor) {
+				elev_set_door_open_lamp(1);
+				timer_start_timer();
+			}
+			else if(current_floor < floor && current_floor != -1) {
 				elev_set_motor_direction(DIRN_UP);
 				dir = 1;
 				state = RUNNING;
@@ -29,20 +33,20 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor, int prev_floor) {
 				dir = -1;
 				state = RUNNING;
 			}
-			else if(current_floor == -1) {
+			else if(current_floor == -1){
 				printf("%d\n", prev_floor);
-				if(floor <= prev_floor) {
+				if((floor < prev_floor) || (floor == prev_floor && dir == 1)){
 					elev_set_motor_direction(DIRN_DOWN);
 					dir = -1;
 					state = RUNNING;
 				}
-				else if(floor >= prev_floor) {
+				else if((floor > prev_floor) ||(floor == prev_floor && dir == -1)){
 					elev_set_motor_direction(DIRN_UP);
 					dir = 1;
 					state = RUNNING;
 				}
-			}
-			break;
+			}	
+		break;
 
 		case RUNNING:
 			queue_add_to_queue(button, floor);
@@ -66,6 +70,8 @@ void fsm_floor_reached(int floor) {
 	switch(state){
 
 		case IDLE:
+			
+			queue_remove_from_queue(floor, dir);
 	
 			break;
 
@@ -88,12 +94,14 @@ void fsm_floor_reached(int floor) {
 
 //stop knappen
 		case STOP:
+
 			elev_set_floor_indicator(floor);
 			elev_set_door_open_lamp(1);
 			break;
 		
 		case DOOR_OPEN:
 			
+						
 			break;
 	}
 
@@ -153,10 +161,16 @@ void fsm_timeout() {
 			break;
 
 		case DOOR_OPEN:
+			printf("asdgfasgagvb\n");
 			elev_set_door_open_lamp(0);
+			
+			
+			printf("%d %d\n", dir, current_floor);
 			if (queue_is_empty() == 1){
 				state = IDLE;
 			}
+
+
 			else if((queue_is_empty() == 0) && queue_which_direction(dir, current_floor) == 1){
 				elev_set_motor_direction(DIRN_UP);
 				state = RUNNING;
@@ -167,6 +181,8 @@ void fsm_timeout() {
 				state = RUNNING;
 				dir = -1;
 			}
+
+			
 			break;
 	}
 }

@@ -141,24 +141,39 @@ void queue_print (){
 
 int queue_which_direction(int dir, int floor) {
 
+
+
 	if(dir == 1 && floor != 3){
 		for(int level = 0; level < 4; level++){
 			for(elev_button_type_t button = 0; button < 3; button++) {
-				if(queue_is_order(button, level) == 1 && level > floor) {
+				if((queue_is_order(button, level) == 1) && level > floor) {
 					return 1;
 				}
-			}
-		}
-	}
-	else if(dir == -1 && floor != 0) {
-		for(int level = 0; level < 4; level++){
-			for(elev_button_type_t button = 0; button < 3; button++) {
-				if(queue_is_order(button, level) == 1 && level < floor) {
+				else if ((queue_is_order(button, level) == 1) && level < floor) {
 					return -1;
 				}
 			}
 		}
 	}
+	
+	else if(dir == -1 && floor != 0) {
+		
+
+		for(int level = 0; level < 4; level++){
+			for(elev_button_type_t button = 0; button < 3; button++) {
+				if((queue_is_order(button, level) == 1) && level < floor) {
+
+
+					return -1;
+				}
+				else if((queue_is_order(button, level) == 1) && level > floor) {
+					printf("34567\n");
+					return 1;
+				}
+			}
+		}
+	}
+	
 	else if(dir == 1 && floor == 3) {
 		return -1;
 	}
@@ -194,34 +209,5 @@ int queue_is_order_below(int floor, int dir){
 }
 
 
-/*void queue_remove_from_queue(int floor, int dir){
-	if (!((dir == 1 && floor == 3) || (dir == -1 && floor == 0))){
-		queue[floor][2] = 0;
-		elev_set_button_lamp(2, floor, 0);
-
-		if ((dir == 1 && queue_is_order_below(floor, dir)) == 0){
-			queue[floor][0] = 0; 
-			queue[floor][1] = 0;         
-			elev_set_button_lamp(0, floor, 0);
-			elev_set_button_lamp(1, floor, 0);
-		}
-
-		if (dir == -1 &&  queue_is_order_below(floor, dir) == 0){
-			queue[floor][0] = 0;
-			queue[floor][1] = 0;
-			elev_set_button_lamp(0, floor, 0);
-			elev_set_button_lamp(1, floor, 0);
-		}
-	}
-	else if(dir == 1 && floor == 3 && queue_is_order(BUTTON_CALL_UP, 3) == 0) {
-		queue[floor][1] = 0;
-		queue_print();
-		elev_set_button_lamp(floor, BUTTON_CALL_DOWN, 0);
-	}
-	else if(dir == -1 && floor == 0 && queue_is_order(BUTTON_CALL_DOWN, 0) == 0) {
-		queue[floor][0] = 0;
-		elev_set_button_lamp(floor, 0, 0);
-	}
-}*/
 
 
