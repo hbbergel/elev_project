@@ -21,3 +21,7 @@ int timer_check_time() {
 	return 0;
 }
 
+int timer_get_start_time() {
+	return start_time;
+}
+

@@ -11,7 +11,7 @@ static int dir;
 
 
 
-void fsm_buttons_pressed(elev_button_type_t button, int floor) {
+void fsm_buttons_pressed(elev_button_type_t button, int floor, int prev_floor) {
 
 	int current_floor = elev_get_floor_sensor_signal();
 
@@ -19,15 +19,28 @@ void fsm_buttons_pressed(elev_button_type_t button, int floor) {
 
 		case IDLE:
 			queue_add_to_queue(button, floor);
-			if(current_floor < floor) {
+			if(current_floor < floor && current_floor != -1) {
 				elev_set_motor_direction(DIRN_UP);
 				dir = 1;
 				state = RUNNING;
 			}
-			else if(current_floor > floor) {
+			else if(current_floor > floor && current_floor != -1) {
 				elev_set_motor_direction(DIRN_DOWN);
 				dir = -1;
 				state = RUNNING;
+			}
+			else if(current_floor == -1) {
+				printf("%d\n", prev_floor);
+				if(floor <= prev_floor) {
+					elev_set_motor_direction(DIRN_DOWN);
+					dir = -1;
+					state = RUNNING;
+				}
+				else if(floor >= prev_floor) {
+					elev_set_motor_direction(DIRN_UP);
+					dir = 1;
+					state = RUNNING;
+				}
 			}
 			break;
 
@@ -86,6 +99,7 @@ void fsm_floor_reached(int floor) {
 
 } 
 
+//stopp-knappen må ha timeout!!!!
 
 void fsm_stop_pressed() {
 
@@ -93,6 +107,7 @@ void fsm_stop_pressed() {
 		case IDLE:
 			elev_set_stop_lamp(1);
 			queue_remove_all_orders();
+			elev_set_door_open_lamp(1);
 			state = STOP;
 			break;
 
@@ -109,7 +124,7 @@ void fsm_stop_pressed() {
 
 		case DOOR_OPEN:
 			elev_set_stop_lamp(1);
-			queue_remove_all_orders();
+			queue_remove_all_orders();			
 			state = STOP;
 			break;
 	}
@@ -122,7 +137,7 @@ void fsm_timeout() {
 
 	switch(state){
 		case IDLE:
-			printf("Error. IDLE, fsm_timeout()\n");
+			elev_set_door_open_lamp(0);
 			break;
 
 		case RUNNING:
@@ -130,9 +145,11 @@ void fsm_timeout() {
 			break;
 
 		case STOP:
-			elev_set_stop_lamp(0);
-			elev_set_door_open_lamp(0);
 			state = IDLE;
+			if(timer_get_start_time() == 0) {
+				timer_start_timer();
+				
+			}
 			break;
 
 		case DOOR_OPEN:

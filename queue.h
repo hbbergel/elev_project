@@ -23,6 +23,8 @@ int queue_which_direction(int dir, int floor);
 
 int queue_is_order_below(int floor, int dir);
 
+int queue_not_a_real_button();
+
 
 
 

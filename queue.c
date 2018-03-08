@@ -7,41 +7,67 @@ static int queue[4][3] = {{0}};
 
 
 void queue_add_to_queue(elev_button_type_t button, int floor) {
-	if (!((button == 0 && floor == 3) || (button == 1 && floor == 0))){
+	if (!((button == BUTTON_CALL_UP && floor == 3) || (button == BUTTON_CALL_DOWN && floor == 0))){
 		queue[floor][button] = 1;
 		elev_set_button_lamp(button, floor, 1);
 	}
 }
 
+int queue_not_a_real_button() {
 
-void queue_remove_from_queue(int floor, int dir){
-	if (!((dir == 1 && floor == 3) || (dir == -1 && floor == 0))){
+	if(queue[0][1] == 1){
+		return 1;
+	}
+	else if(queue[3][0] == 1) {
+		return 1;
+	}
+	
+	return 0;
+}
+
+
+void queue_remove_from_queue(int floor, int dir) {
+
+	if(dir == 1 && floor == 3 && queue_not_a_real_button() == 0) {
+		queue[floor][1] = 0;
 		queue[floor][2] = 0;
-		elev_set_button_lamp(2, floor, 0);
+		elev_set_button_lamp(BUTTON_CALL_DOWN, floor, 0);
+		elev_set_button_lamp(BUTTON_COMMAND, floor, 0);
+	}
+	else if(dir == -1 && floor == 0 && queue_not_a_real_button() == 0) {
+		queue[floor][0] = 0;
+		queue[floor][2] = 0;
+		elev_set_button_lamp(BUTTON_CALL_UP, floor, 0);
+		elev_set_button_lamp(BUTTON_COMMAND, floor, 0);
+	}
+	else if(!((dir == 1 && floor == 3) || (dir == -1 && floor == 0))) {
+		queue[floor][2] = 0;
+		elev_set_button_lamp(BUTTON_COMMAND, floor, 0);
 
-		if ((dir == 1 && queue_is_order_below(floor, dir)) == 0){
-			queue[floor][0] = 0; 
-			queue[floor][1] = 0;         
-			elev_set_button_lamp(0, floor, 0);
-			elev_set_button_lamp(1, floor, 0);
-		}
-
-		if (dir == -1 &&  queue_is_order_below(floor, dir) == 0){
+		if(dir == 1 && queue_is_order_below(floor, dir) == 0) {
 			queue[floor][0] = 0;
 			queue[floor][1] = 0;
-			elev_set_button_lamp(0, floor, 0);
-			elev_set_button_lamp(1, floor, 0);
+			elev_set_button_lamp(BUTTON_CALL_UP, floor, 0);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, floor, 0);
+		}
+		else if(dir == -1 && queue_is_order_below(floor, dir) == 0) {
+			queue[floor][0] = 0;
+			queue[floor][1] = 0;
+			elev_set_button_lamp(BUTTON_CALL_UP, floor, 0);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, floor, 0);
+		}
+		else if(dir == 1 && queue_is_order_below(floor, dir) == 1) {
+			queue[floor][0] = 0;
+			elev_set_button_lamp(BUTTON_CALL_UP, floor, 0);
+		}
+		else if(dir == -1 && queue_is_order_below(floor, dir) == 1) {
+			queue[floor][1] = 0;
+			elev_set_button_lamp(BUTTON_CALL_DOWN, floor, 0);
 		}
 	}
-	else if(dir == 1 && floor == 3) {
-		queue[floor][1] = 0;
-		elev_set_button_lamp(floor, 1, 0);
-	}
-	else if(dir == -1 && floor == 0) {
-		queue[floor][0] = 0;
-		elev_set_button_lamp(floor, 0, 0);
-	}
+
 }
+
 
 
 void queue_remove_all_orders() {
@@ -77,10 +103,10 @@ int queue_elev_stop(int floor, int dir){
 		return 1;
 	}
 
-	if ((queue_is_order(BUTTON_CALL_UP, floor) == 1) && dir == 1){
+	if ((queue_is_order(BUTTON_CALL_UP, 3) == 0) && (queue_is_order(BUTTON_CALL_UP, floor) == 1) && dir == 1){
 		return 1;
 	} 
-	else if ((queue_is_order(BUTTON_CALL_DOWN, floor) == 1) && dir == -1){
+	else if ((queue_is_order(BUTTON_CALL_DOWN, 0) == 0) && (queue_is_order(BUTTON_CALL_DOWN, floor) == 1) && dir == -1){
 		return 1;
 	}
 	else if (queue_is_order(BUTTON_COMMAND, floor) == 1){
@@ -167,5 +193,35 @@ int queue_is_order_below(int floor, int dir){
 	return 0;
 }
 
+
+/*void queue_remove_from_queue(int floor, int dir){
+	if (!((dir == 1 && floor == 3) || (dir == -1 && floor == 0))){
+		queue[floor][2] = 0;
+		elev_set_button_lamp(2, floor, 0);
+
+		if ((dir == 1 && queue_is_order_below(floor, dir)) == 0){
+			queue[floor][0] = 0; 
+			queue[floor][1] = 0;         
+			elev_set_button_lamp(0, floor, 0);
+			elev_set_button_lamp(1, floor, 0);
+		}
+
+		if (dir == -1 &&  queue_is_order_below(floor, dir) == 0){
+			queue[floor][0] = 0;
+			queue[floor][1] = 0;
+			elev_set_button_lamp(0, floor, 0);
+			elev_set_button_lamp(1, floor, 0);
+		}
+	}
+	else if(dir == 1 && floor == 3 && queue_is_order(BUTTON_CALL_UP, 3) == 0) {
+		queue[floor][1] = 0;
+		queue_print();
+		elev_set_button_lamp(floor, BUTTON_CALL_DOWN, 0);
+	}
+	else if(dir == -1 && floor == 0 && queue_is_order(BUTTON_CALL_DOWN, 0) == 0) {
+		queue[floor][0] = 0;
+		elev_set_button_lamp(floor, 0, 0);
+	}
+}*/
 
 

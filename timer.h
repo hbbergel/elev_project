@@ -5,6 +5,7 @@ void timer_start_timer();
 
 int timer_check_time();
 
+int timer_get_start_time();
 
 
 #endif

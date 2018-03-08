@@ -8,7 +8,7 @@
 typedef enum elev_state{IDLE, RUNNING, STOP, DOOR_OPEN, NONE} elev_state;
 
 
-void fsm_buttons_pressed(elev_button_type_t button, int floor);
+void fsm_buttons_pressed(elev_button_type_t button, int floor, int prev_floor);
 
 void fsm_floor_reached(int floor);
 
