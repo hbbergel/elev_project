@@ -3,6 +3,8 @@
 #include "fsm.h"
 #include <stdio.h>
 
+//En matrise som representerer køen. Rader tilsvarer etasje og kolonner tilsvarer type knapp. Når er bestilling legges til i køen
+//blir riktig posisjon i matrisen satt til 1. Når en bestilling slettes blir posisjonen satt til 0.
 static int queue[4][3] = {{0}};
 
 
@@ -13,6 +15,7 @@ void queue_add_to_queue(elev_button_type_t button, int floor) {
 	}
 }
 
+//Forsikre om at ikke funksjoner får inn knapper som ikke eksisterer.
 int queue_not_a_real_button() {
 
 	if(queue[0][1] == 1){
@@ -25,7 +28,7 @@ int queue_not_a_real_button() {
 	return 0;
 }
 
-
+//Sletter bestillinger fra kø og skrur av lys til knapper.
 void queue_remove_from_queue(int floor, int dir) {
 
 	if(dir == 1 && floor == 3 && queue_not_a_real_button() == 0) {
@@ -97,6 +100,7 @@ int queue_is_order(elev_button_type_t button, int floor) {
 	return 0;
 }
 
+//Avgjør om heisen skal stopp ved en etasje eller ikke.
 int queue_elev_stop(int floor, int dir){
 
 	if(queue_is_order_below(floor, dir) == 0){
@@ -139,6 +143,7 @@ void queue_print (){
 	}
 }
 
+//Avgjør hvilken vei heisen skal kjøre etter en bestilling er betjent.
 int queue_which_direction(int dir, int floor) {
 
 
@@ -185,6 +190,7 @@ int queue_which_direction(int dir, int floor) {
 	return 0;
 }
 
+//Sjekker om det er noen bestillinger over etasjen hvis dir = opp eller om det er bestillinger under etasjen hvis dir = ned.
 int queue_is_order_below(int floor, int dir){
 
 	if(dir == 1) {
